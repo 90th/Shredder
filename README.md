@@ -18,4 +18,4 @@ Shredding file... 90.000000% complete
 Shredding file... 100.000000% complete
 File: test.exe -> shredded successfully.
 ```
-![(all assets, latest release)](https://img.shields.io/github/downloads/90th/Shredder/latest/total?sort=date&style=flat&logoColor=green&label=Downloads&color=red)
+
