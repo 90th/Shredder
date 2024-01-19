@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 	std::string filePath = argv[2];
 	int iterations = std::atoi(argv[4]);
 
-	if (iterations < 1 || iterations > 25) {
+	if (iterations < 1 || iterations > 250) {
 		std::cout << "Invalid number of iterations.\n";
 		std::exit(1);
 	}
