@@ -8,9 +8,10 @@
 
 namespace file = std::filesystem;
 
-inline std::vector<char> generateRandomPattern(std::size_t size) {
+std::vector<char> generateRandomPattern(std::size_t size) {
 	std::vector<char> pattern(size);
-	std::mt19937 engine(static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count()));
+	std::random_device rd;
+	std::mt19937 engine(rd());
 	std::uniform_int_distribution<int> distribution(500, 5000);
 
 	for (auto& element : pattern) {
@@ -20,17 +21,23 @@ inline std::vector<char> generateRandomPattern(std::size_t size) {
 	return pattern;
 }
 
-inline static void shredFile(const std::string& filePath, int iterations) {
+void shredFile(const std::string& filePath, int iterations) {
 	try {
 		auto fileSize = file::file_size(filePath);
 		std::vector<char> buffer(fileSize, 0);
 
 		for (int iteration = 0; iteration < iterations; ++iteration) {
 			std::ifstream inputFile(filePath, std::ios::binary);
+			if (!inputFile) {
+				throw std::runtime_error("Failed to open input file");
+			}
 			inputFile.read(buffer.data(), fileSize);
 			inputFile.close();
 
 			std::ofstream outputFile(filePath, std::ios::binary | std::ios::trunc);
+			if (!outputFile) {
+				throw std::runtime_error("Failed to open output file");
+			}
 
 			auto pattern = generateRandomPattern(fileSize);
 			for (int i = 0; i < 10; ++i) {
@@ -41,7 +48,6 @@ inline static void shredFile(const std::string& filePath, int iterations) {
 			outputFile.write(buffer.data(), fileSize);
 			outputFile.close();
 
-			// Print progress information for the user
 			float percentComplete = static_cast<float>(iteration + 1) / iterations * 100.0f;
 			std::cout << "Shredding file... " << std::fixed << percentComplete << "% complete\n";
 		}
@@ -57,12 +63,12 @@ int main(int argc, char* argv[]) {
 		std::cout << "Usage: shredder -f <file location> -i <number of iterations>\n"
 			<< "The more times you shred the file, the harder it will be to recover.\n"
 			<< "Default number of iterations is 3.\n";
-		std::exit(0);
+		return 0;
 	}
 
 	if (argc != 5) {
 		std::cout << "Invalid command-line arguments.\n";
-		std::exit(1);
+		return 1;
 	}
 
 	std::string filePath = argv[2];
@@ -70,12 +76,12 @@ int main(int argc, char* argv[]) {
 
 	if (iterations < 1 || iterations > 250) {
 		std::cout << "Invalid number of iterations.\n";
-		std::exit(1);
+		return 1;
 	}
 
 	if (!file::exists(filePath)) {
 		std::cout << "File not found.\n";
-		std::exit(1);
+		return 1;
 	}
 
 	try {
